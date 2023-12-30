@@ -2,8 +2,10 @@
 import React, { useState, useEffect } from 'react';
 import './TicTacToe.css';
 
+// Initial state of the Tic Tac Toe board
 const initialBoard = Array(9).fill(null);
 
+// Function to check for a winner based on the current board state
 const checkWinner = (squares) => {
   const lines = [
     [0, 1, 2],
@@ -26,9 +28,10 @@ const checkWinner = (squares) => {
   return { winner: null, line: [] };
 };
 
+// Individual square component
 const Square = ({ value, onClick, isWinnerSquare }) => (
   <button
-    className={`box ${isWinnerSquare ? 'winner' : ''}`}
+    className={`box ${isWinnerSquare ? 'winner' : ''} ${value === 'X' ? 'x-move' : value === 'O' ? 'o-move' : ''}`}
     onClick={onClick}
     disabled={value !== null}
   >
@@ -36,6 +39,7 @@ const Square = ({ value, onClick, isWinnerSquare }) => (
   </button>
 );
 
+// Game board component
 const Board = ({ squares, onClick, winnerInfo }) => (
   <div className="board">
     {squares.map((square, i) => (
@@ -49,10 +53,11 @@ const Board = ({ squares, onClick, winnerInfo }) => (
   </div>
 );
 
-const GameStatus = ({ winnerInfo }) => (
+// Component to display game status (winner or draw)
+const GameStatus = ({ winnerInfo, playerName, playerSign }) => (
   <div className="winner-container">
     {winnerInfo.winner && winnerInfo.winner !== 'T' && (
-      <div className="winner-message">{`Player ${winnerInfo.winner} wins!`}</div>
+      <div className="winner-message">{`${winnerInfo.winner === playerSign ? playerName + ' Won' : 'Bot Won'}`}</div>
     )}
     {winnerInfo.winner === 'T' && (
       <div className="draw-message">It's a Draw!</div>
@@ -60,12 +65,17 @@ const GameStatus = ({ winnerInfo }) => (
   </div>
 );
 
+// Main Tic Tac Toe component
 const TicTacToe = () => {
+  // State for the Tic Tac Toe board, player turn, winner info, player sign, player name, and name set status
   const [squares, setSquares] = useState(initialBoard);
   const [isXNext, setIsXNext] = useState(true);
   const [winnerInfo, setWinnerInfo] = useState({ winner: null, line: [] });
   const [playerSign, setPlayerSign] = useState('X');
+  const [playerName, setPlayerName] = useState('');
+  const [isNameSet, setIsNameSet] = useState(false);
 
+  // Effect to make the bot move when it's its turn
   useEffect(() => {
     const makeBotMove = async () => {
       try {
@@ -103,6 +113,7 @@ const TicTacToe = () => {
     }
   }, [squares, isXNext, winnerInfo, playerSign]);
 
+  // Function to handle player's move and check for a winner or draw
   const handleClick = (i) => {
     if (squares[i] || winnerInfo.winner) {
       return;
@@ -127,33 +138,78 @@ const TicTacToe = () => {
     }
   };
 
+  // Function to handle game restart
   const handleRestart = () => {
     setSquares(initialBoard);
     setWinnerInfo({ winner: null, line: [] });
     setIsXNext(true);
   };
 
-  const handleSignChange = (newSign) => {
-    setPlayerSign(newSign);
+  // Function to handle sign change (X or O)
+  const handleSignChange = (e) => {
+    setPlayerSign(e.target.value);
     setSquares(initialBoard);
     setWinnerInfo({ winner: null, line: [] });
     setIsXNext(true);
   };
 
+  // Function to set player's name
+  const handleNameSet = () => {
+    if (playerName.trim() !== '') {
+      setIsNameSet(true);
+    }
+  };
+
+  // Function to handle player's name change
+  const handleNameChange = (e) => {
+    setPlayerName(e.target.value);
+  };
+
+  // Function to change player's name
+  const handleChangeName = () => {
+    setIsNameSet(false);
+    setPlayerName('');
+  };
+
+  // JSX for the Tic Tac Toe component
   return (
     <div className="game">
       <h1>Tic Tac Toe</h1>
-      <div className="sign-selection">
-        <label>
-          Select your sign:
-          <select value={playerSign} onChange={(e) => handleSignChange(e.target.value)}>
-            <option value="X">X</option>
-            <option value="O">O</option>
-          </select>
-        </label>
-      </div>
+      {isNameSet && (
+        <div className="player-name-input">
+          <label>
+            Player Name: {playerName}
+            <button onClick={handleChangeName}>Change Name</button>
+          </label>
+        </div>
+      )}
+      {!isNameSet && (
+        <div className="player-name-input">
+          <label>
+            Player name:
+            <input
+              type="text"
+              value={playerName}
+              onChange={handleNameChange}
+              placeholder="Player Name"
+            />
+          </label>
+          <button onClick={handleNameSet}>Set Name</button>
+        </div>
+      )}
+      {isNameSet && (
+        <div className="sign-selection">
+          <label>
+            Select your sign:
+            <select value={playerSign} onChange={handleSignChange}>
+              <option value="X">X</option>
+              <option value="O">O</option>
+            </select>
+          </label>
+        </div>
+      )}
       <Board squares={squares} onClick={handleClick} winnerInfo={winnerInfo} />
-      <GameStatus winnerInfo={winnerInfo} />
+      <GameStatus winnerInfo={winnerInfo} playerName={playerName} playerSign={playerSign} />
       <button className="restart-button" onClick={handleRestart}>
         Restart Game
       </button>
