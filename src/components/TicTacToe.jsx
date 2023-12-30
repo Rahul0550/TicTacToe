@@ -1,4 +1,3 @@
-// TicTacToe.js
 import React, { useState, useEffect } from 'react';
 import './TicTacToe.css';
 
@@ -65,7 +64,6 @@ const GameStatus = ({ winnerInfo, playerName, playerSign }) => (
   </div>
 );
 
-// Main Tic Tac Toe component
 const TicTacToe = () => {
   // State for the Tic Tac Toe board, player turn, winner info, player sign, player name, and name set status
   const [squares, setSquares] = useState(initialBoard);
@@ -171,7 +169,6 @@ const TicTacToe = () => {
     setPlayerName('');
   };
 
-  // JSX for the Tic Tac Toe component
   return (
     <div className="game">
       <h1>Tic Tac Toe</h1>
